@@ -1444,6 +1444,31 @@ fi
 }
 # }}}
 
+# {{{ configure root password
+config_rootpw(){
+if checkbootparam 'rootpw' ; then
+   ROOT_PASSWD=''
+   ROOT_PASSWD="$(getbootparam 'rootpw' 2>>$DEBUG)"
+   einfo "Bootoption rootpw found, trying to set password for user root."
+
+   if [ -z "$ROOT_PASSWD" ] ; then
+      ewarn "No password given for user root. Please set one with rootpw=<pw>" ; eend 0
+   else
+      # chpasswd sucks, seriously.
+      if chpasswd --help 2>&1 | grep -q -- '-m,' ; then
+        echo "root:$ROOT_PASSWD" | chpasswd -m
+      else
+        echo "root:$ROOT_PASSWD" | chpasswd
+      fi
+   fi
+
+   eindent
+   ewarn 'Warning: please change the password for user root as soon as possible!'
+   eoutdent
+fi
+}
+# }}}
+
 # {{{ autostart of x11vnc
 config_vnc(){
 
